@@ -2,11 +2,18 @@ import whisper
 import sounddevice as sd
 from scipy.io.wavfile import write
 import pyttsx3
+import logging
+
+# Suppress verbose logs
+logging.getLogger('pyttsx3').setLevel(logging.ERROR)
 
 # Config
 SAMPLE_RATE = 16000
 DURATION = 5  # seconds
 FILENAME = "input.wav"
+
+# Load Whisper model once
+model = whisper.load_model("base")
 
 def record_audio():
     print("🎙️ Listening for 5 seconds...")
@@ -16,7 +23,6 @@ def record_audio():
     print("✅ Audio recorded.")
 
 def transcribe_audio():
-    model = whisper.load_model("base")
     result = model.transcribe(FILENAME)
     print("📝 You said:", result["text"])
     return result["text"]
