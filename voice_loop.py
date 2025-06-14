@@ -59,9 +59,8 @@ def speak_response(text):
     engine.runAndWait()
 
 # ========== Main Loop ==========
-    if __name__ == "__main__":
+if __name__ == "__main__":
     print("🤖 Voice Assistant Started! Say 'exit' to quit.\n")
-
     while True:
         record_audio()
         user_input = transcribe_audio()
