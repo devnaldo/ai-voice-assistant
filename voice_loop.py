@@ -37,8 +37,8 @@ def record_audio():
     print("✅ Audio recorded.")
 
 # ========== Transcription ==========
+model = whisper.load_model("base")
 def transcribe_audio():
-    model = whisper.load_model("base")
     result = model.transcribe(FILENAME)
     print("📝 You said:", result["text"])
     return result["text"]
