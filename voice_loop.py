@@ -59,8 +59,17 @@ def speak_response(text):
     engine.runAndWait()
 
 # ========== Main Loop ==========
-if __name__ == "__main__":
-    record_audio()
-    user_input = transcribe_audio()
-    reply = get_gemini_reply(user_input)
-    speak_response(reply)
+    if __name__ == "__main__":
+    print("🤖 Voice Assistant Started! Say 'exit' to quit.\n")
+
+    while True:
+        record_audio()
+        user_input = transcribe_audio()
+
+        if any(word in user_input.lower() for word in ["exit", "quit", "bye", "stop"]):
+            print("👋 Exiting. Goodbye!")
+            speak_response("Goodbye!")
+            break
+
+        reply = get_gemini_reply(user_input)
+        speak_response(reply)
