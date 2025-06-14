@@ -1,21 +1,20 @@
 import os
+import threading
 from dotenv import load_dotenv
 import sounddevice as sd
 from scipy.io.wavfile import write
-import whisper  # using local model for now
+import whisper
 import pyttsx3
 from google import genai
+import keyboard
 
 # ========== Load or Get API Key ==========
 load_dotenv()  # Load existing .env file
 
 api_key = os.getenv("GEMINI_API_KEY")
-
 if not api_key:
     print("⚠️ Gemini API key not found!")
     api_key = input("👉 Please paste your Gemini API key: ").strip()
-
-    # Save to .env
     with open(".env", "a") as env_file:
         env_file.write(f"\nGEMINI_API_KEY={api_key}")
     print("✅ API key saved to .env for future runs.")
@@ -46,37 +45,49 @@ def transcribe_audio():
 # ========== Gemini AI Reply ==========
 def get_gemini_reply(prompt):
     response = genai_client.models.generate_content(
-        model="gemini-1.5-flash",  # or "gemini-pro" if available
+        model="gemini-1.5-flash",
         contents=prompt
     )
     print("🤖 Gemini says:", response.text)
     return response.text
 
-# ========== TTS ==========
+# ========== TTS with Skip Support ==========
 def speak_response(text):
     engine = pyttsx3.init()
+    stop_flag = threading.Event()
+
+    def check_for_skip():
+        keyboard.wait('s')
+        print("⏹️ Speech interrupted by 's' key.")
+        stop_flag.set()
+        engine.stop()
+
+    skip_thread = threading.Thread(target=check_for_skip)
+    skip_thread.start()
+
     engine.say(text)
     engine.runAndWait()
 
+    stop_flag.set()
+
 # ========== Main Loop ==========
 if __name__ == "__main__":
-    print("🤖 Voice Assistant Started! Say 'exit' to quit or 'skip' to skip a reply.\n")
+    print("🤖 Voice Assistant Started!")
+    print("Say 'exit' to quit or 'skip' to skip reply.")
+    print("Press 's' key while AI is speaking to interrupt.\n")
 
     while True:
         record_audio()
         user_input = transcribe_audio()
 
-        # Exit command
         if any(word in user_input.lower() for word in ["exit", "quit", "bye", "stop"]):
             print("👋 Exiting. Goodbye!")
             speak_response("Goodbye!")
             break
 
-        # Skip current Gemini reply + TTS
         if any(word in user_input.lower() for word in ["skip", "ignore", "next"]):
             print("⏭️ Skipping Gemini response and TTS.")
             continue
 
-        # Normal flow
         reply = get_gemini_reply(user_input)
         speak_response(reply)
