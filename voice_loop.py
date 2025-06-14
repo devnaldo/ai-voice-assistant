@@ -52,7 +52,7 @@ def get_gemini_reply(prompt):
     return response.text
 
 # ========== TTS with Skip Support ==========
-def speak_response(text):
+def speak_response(text, is_exit=False):
     engine = pyttsx3.init()
     stop_flag = threading.Event()
 
@@ -65,15 +65,16 @@ def speak_response(text):
                 engine.stop()
                 break
 
-    skip_thread = threading.Thread(target=check_for_skip)
-    skip_thread.start()
+    if not is_exit:
+        skip_thread = threading.Thread(target=check_for_skip)
+        skip_thread.start()
 
     engine.say(text)
     engine.runAndWait()
 
     stop_flag.set()
-    skip_thread.join()
-
+    if not is_exit:
+        skip_thread.join()
 
 # ========== Main Loop ==========
 if __name__ == "__main__":
@@ -87,7 +88,7 @@ if __name__ == "__main__":
 
         if any(word in user_input.lower() for word in ["exit", "quit", "bye", "stop"]):
             print("👋 Exiting. Goodbye!")
-            speak_response("Goodbye!")
+            speak_response("Goodbye!", is_exit=True)
             break
 
         if any(word in user_input.lower() for word in ["skip", "ignore", "next"]):
