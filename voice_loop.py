@@ -60,15 +60,23 @@ def speak_response(text):
 
 # ========== Main Loop ==========
 if __name__ == "__main__":
-    print("🤖 Voice Assistant Started! Say 'exit' to quit.\n")
+    print("🤖 Voice Assistant Started! Say 'exit' to quit or 'skip' to skip a reply.\n")
+
     while True:
         record_audio()
         user_input = transcribe_audio()
 
+        # Exit command
         if any(word in user_input.lower() for word in ["exit", "quit", "bye", "stop"]):
             print("👋 Exiting. Goodbye!")
             speak_response("Goodbye!")
             break
 
+        # Skip current Gemini reply + TTS
+        if any(word in user_input.lower() for word in ["skip", "ignore", "next"]):
+            print("⏭️ Skipping Gemini response and TTS.")
+            continue
+
+        # Normal flow
         reply = get_gemini_reply(user_input)
         speak_response(reply)
