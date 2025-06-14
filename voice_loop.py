@@ -57,10 +57,13 @@ def speak_response(text):
     stop_flag = threading.Event()
 
     def check_for_skip():
-        keyboard.wait('s')
-        print("⏹️ Speech interrupted by 's' key.")
-        stop_flag.set()
-        engine.stop()
+        print("⏳ You can press 's' to skip...")
+        while not stop_flag.is_set():
+            if keyboard.is_pressed('s'):
+                print("⏹️ Speech interrupted by 's' key.")
+                stop_flag.set()
+                engine.stop()
+                break
 
     skip_thread = threading.Thread(target=check_for_skip)
     skip_thread.start()
@@ -69,6 +72,8 @@ def speak_response(text):
     engine.runAndWait()
 
     stop_flag.set()
+    skip_thread.join()
+
 
 # ========== Main Loop ==========
 if __name__ == "__main__":
