@@ -2,37 +2,42 @@ import whisper
 import sounddevice as sd
 from scipy.io.wavfile import write
 import pyttsx3
-import logging
+import os
+from datetime import datetime
 
-# Suppress verbose logs
-logging.getLogger('pyttsx3').setLevel(logging.ERROR)
-
-# Config
 SAMPLE_RATE = 16000
 DURATION = 5  # seconds
-FILENAME = "input.wav"
-
-# Load Whisper model once
-model = whisper.load_model("base")
-
-def record_audio():
+model = whisper.load_model("tiny")
+def record_audio(filename="input.wav"):
     print("🎙️ Listening for 5 seconds...")
     audio = sd.rec(int(DURATION * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1)
     sd.wait()
-    write(FILENAME, SAMPLE_RATE, audio)
+    write(filename, SAMPLE_RATE, audio)
     print("✅ Audio recorded.")
 
-def transcribe_audio():
-    result = model.transcribe(FILENAME)
-    print("📝 You said:", result["text"])
+def transcribe_audio(filename="input.wav"):
+    result = model.transcribe(filename)
+    print("📝 Transcription:", result["text"])
     return result["text"]
 
-def speak(text):
+def speak_response(text):
     engine = pyttsx3.init()
     engine.say(text)
     engine.runAndWait()
 
+def get_reply(text):
+    text = text.lower()
+    if "your name" in text:
+        return "I am your voice assistant."
+    elif "how are you" in text:
+        return "I am doing great, thank you!"
+    elif "time" in text:
+        return "The current time is " + datetime.now().strftime("%I:%M %p")
+    else:
+        return "Sorry, I didn't understand that."
+
 if __name__ == "__main__":
     record_audio()
     text = transcribe_audio()
-    speak("You said: " + text)
+    reply = get_reply(text)
+    speak_response(reply)
