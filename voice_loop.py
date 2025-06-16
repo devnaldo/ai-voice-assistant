@@ -3,24 +3,36 @@ import threading
 from dotenv import load_dotenv
 import sounddevice as sd
 from scipy.io.wavfile import write
-import whisper
 import pyttsx3
 from google import genai
+from google.cloud import speech
 import keyboard
 
-# ========== Load or Get API Key ==========
+# ========== Load or Get API Keys ==========
 load_dotenv()  # Load existing .env file
 
-api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
+# Gemini API Key
+GEMINI_API_KEY_NAME = "GEMINI_API_KEY"
+gemini_api_key = os.getenv(GEMINI_API_KEY_NAME)
+if not gemini_api_key:
     print("⚠️ Gemini API key not found!")
-    api_key = input("👉 Please paste your Gemini API key: ").strip()
+    gemini_api_key = input("👉 Please paste your Gemini API key: ").strip()
     with open(".env", "a") as env_file:
-        env_file.write(f"\nGEMINI_API_KEY={api_key}")
-    print("✅ API key saved to .env for future runs.")
+        env_file.write(f"\n{GEMINI_API_KEY_NAME}={gemini_api_key}")
+    print("✅ Gemini API key saved to .env for future runs.")
+
+# Google STT API Key
+GOOGLE_API_KEY_NAME = "GOOGLE_STT_API_KEY"
+google_api_key = os.getenv(GOOGLE_API_KEY_NAME)
+if not google_api_key:
+    print("⚠️ Google STT API key not found!")
+    google_api_key = input("👉 Please paste your Google Speech-to-Text API key: ").strip()
+    with open(".env", "a") as env_file:
+        env_file.write(f"\n{GOOGLE_API_KEY_NAME}={google_api_key}")
+    print("✅ Google STT API key saved to .env for future runs.")
 
 # Initialize Gemini client
-genai_client = genai.Client(api_key=api_key)
+genai_client = genai.Client(api_key=gemini_api_key)
 
 # ========== Constants ==========
 SAMPLE_RATE = 16000
@@ -35,12 +47,24 @@ def record_audio():
     write(FILENAME, SAMPLE_RATE, audio)
     print("✅ Audio recorded.")
 
-# ========== Transcription ==========
-model = whisper.load_model("base")
+# ========== Google STT Transcription ==========
 def transcribe_audio():
-    result = model.transcribe(FILENAME)
-    print("📝 You said:", result["text"])
-    return result["text"]
+    client = speech.SpeechClient(client_options={"api_key": google_api_key})
+    with open(FILENAME, "rb") as audio_file:
+        content = audio_file.read()
+    audio = speech.RecognitionAudio(content=content)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=SAMPLE_RATE,
+        language_code="en-US"
+    )
+    response = client.recognize(config=config, audio=audio)
+    if not response.results:
+        print("📝 No speech detected.")
+        return ""
+    text = response.results[0].alternatives[0].transcript
+    print("📝 You said:", text)
+    return text
 
 # ========== Gemini AI Reply ==========
 def get_gemini_reply(prompt):
