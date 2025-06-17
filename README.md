@@ -1,101 +1,129 @@
-# AI Voice Assistant (Project Luna)
+Voice Assistant: Speech-to-Text (Google STT) & Gemini AI
+A Python-based voice assistant that records your speech, transcribes it using Google Speech-to-Text (STT), generates intelligent replies with Gemini AI, and speaks back the response—all locally on your machine.
 
-This is an open-source desktop voice assistant inspired by Siri/Alexa.
-Built with Python + JavaScript to work on Windows, macOS, and Linux.
+Features
+Voice Recording: Captures microphone audio and saves as WAV.
 
-## Features
-- Wake word detection
-- Whisper STT
-- Mixtral/GPT LLM
-- TTS with Coqui/Pyttsx3
-- Cross-platform system commands
+Speech Recognition: Uses Google STT API for accurate transcription.
 
-## Features
-Record audio from your microphone
+Conversational AI: Integrates Gemini AI for natural language replies.
 
-Transcribe speech to text with OpenAI Whisper
+Text-to-Speech: Reads responses aloud using pyttsx3.
 
-Text-to-speech response using pyttsx3
+Keyboard Controls:
 
-## Requirements
-Python 3.8 or higher
+Press s to skip TTS playback.
 
-FFmpeg (for audio processing)
+Say "skip" or "exit" to control the session.
 
-The following Python libraries:
+Secure API Key Handling:
 
-openai-whisper
+Prompts for keys on first run, stores them in a local .env file (never committed).
 
-sounddevice
+Demo
+bash
+python voice_assistant.py
+Requirements
+Operating System: Windows, Linux, or macOS (audio features tested on Windows).
 
-scipy
+Python: 3.8 or higher.
 
-pyttsx3
-
-numpy
+Microphone and speakers for full functionality.
 
 Installation
 1. Clone the Repository
 bash
-git clone https://github.com/yourusername/ai-voice-assistant.git
-cd ai-voice-assistant
-2. Set up a Virtual Environment (Recommended)
+git clone https://github.com/yourusername/voice-assistant.git
+cd voice-assistant
+2. Set Up a Virtual Environment (Recommended)
 bash
 python -m venv venv
 # On Windows:
 venv\Scripts\activate
 # On Linux/macOS:
 source venv/bin/activate
-3. Install Python Dependencies
+3. Install Dependencies
 bash
-pip install openai-whisper sounddevice scipy pyttsx3 numpy
-FFmpeg Installation
-Windows
-FFmpeg is required for audio processing by Whisper and other libraries.
+pip install -r requirements.txt
+requirements.txt
 
-Option 1: Using a Package Manager (Recommended)
-Chocolatey:
+text
+python-dotenv>=1.0.0
+sounddevice>=0.4.6
+scipy>=1.10.0
+pyttsx3>=2.90
+google-cloud-speech>=2.21.0
+google-genai>=0.3.0
+keyboard>=0.13.5
+4. System Dependencies
+PortAudio: Required for sounddevice.
 
-bash
-choco install ffmpeg
-Winget:
+Windows: Usually included with pip install.
 
-bash
-winget install ffmpeg
-Scoop:
+Linux: Install with sudo apt-get install portaudio19-dev before installing requirements.
 
-bash
-scoop install ffmpeg
+API Keys Setup
+1. Gemini API Key
+Get your Gemini API key from the Gemini developer portal.
 
-Open a new Command Prompt and verify installation:
+On first run, you'll be prompted to paste your key. It will be saved in .env.
 
-bash
-ffmpeg -version
-You should see FFmpeg version information.
+2. Google Speech-to-Text API Key
+Create a project in Google Cloud Console.
 
-Linux / WSL
-bash
-sudo apt update
-sudo apt install ffmpeg
-Verify with:
+Enable the Speech-to-Text API.
 
-bash
-ffmpeg -version
+Create an API key.
+
+On first run, paste your key when prompted. It will be saved in .env.
+
+.env Example
+
+text
+GEMINI_API_KEY=your-gemini-key
+GOOGLE_STT_API_KEY=your-google-key
+Important:
+.env is gitignored and never pushed to GitHub.
+
 Usage
-Make sure your microphone and speakers are working (on Windows).
-
-Run the assistant:
+Start the assistant:
 
 bash
-python voice_loop.py
-Speak when prompted. The assistant will transcribe and respond.
+python voice_assistant.py
+Speak when prompted.
+
+Say "exit" to quit, or "skip" to skip the Gemini reply.
+
+Press s while the assistant is speaking to interrupt playback.
+
+Security & Best Practices
+API keys are never stored in code or committed to the repository.
+
+Restrict your API keys in Google Cloud and Gemini dashboards to only necessary APIs and, if possible, to specific IPs.
+
+Monitor usage, rotate keys regularly, and delete unused keys.
+
+.env is gitignored by default.
 
 Troubleshooting
-FFmpeg not found:
-Ensure FFmpeg is installed and its bin directory is added to your system PATH.
+Microphone not working?
+Ensure your OS allows microphone access and that your device is selected as the default input.
 
-Contributing
-Pull requests are welcome! Please ensure you have installed all dependencies and tested your changes on both Windows and Linux if possible.
+Google STT errors?
+Make sure your API key is valid and the Speech-to-Text API is enabled in your Google Cloud project.
+
+Permission errors on Linux?
+Try running as administrator or check audio group permissions.
+
+Contribution
+Pull requests are welcome! Please:
+
+Test on your OS before submitting.
+
+Never commit your .env or API keys.
+
+Follow the code style and security guidelines.
 
 License
 MIT License
+
