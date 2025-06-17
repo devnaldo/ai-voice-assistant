@@ -1,10 +1,7 @@
-google-genai==1.20.0
-keyboard==0.13.5
-numpy==2.2.6
-openai-whisper==20240930
-pyttsx3==2.98
-python-dotenv==1.1.0
-scipy==1.15.3
-sounddevice==0.5.2
-torch==2.7.1
-tqdm==4.67.1
+python-dotenv>=1.0.0
+sounddevice>=0.4.6
+scipy>=1.10.0
+pyttsx3>=2.90
+google-cloud-speech>=2.21.0
+google-genai>=0.3.0
+keyboard>=0.13.5
