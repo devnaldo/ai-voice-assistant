@@ -113,9 +113,23 @@ if __name__ == "__main__":
     print("Say 'exit' to quit or 'skip' to skip reply.")
     print("Press 's' key while AI is speaking to interrupt.\n")
 
+    fail_count = 0
+    max_failures = 3  # you can change this to 2 or 5 if you want
+
     while True:
         record_audio()
         user_input = transcribe_audio()
+
+        if not user_input.strip():
+            fail_count += 1
+            print(f"⚠️ Transcription failed ({fail_count}/{max_failures}). Skipping Gemini and TTS.")
+            
+            if fail_count >= max_failures:
+                print("❌ Too many failed attempts. Exiting for safety.")
+                break
+            continue
+
+        fail_count = 0  # Reset counter on successful transcription
 
         if any(word in user_input.lower() for word in ["exit", "quit", "bye", "stop"]):
             print("👋 Exiting. Goodbye!")
